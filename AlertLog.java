@@ -1,7 +1,19 @@
+/**
+ * 
+ */
+
+/**
+ * @author MH
+ *
+ */
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import org.apache.poi.*;
 
 public class AlertLog {
     private static final int SEVERITY = 0;
@@ -20,36 +32,29 @@ public class AlertLog {
         File dir = new File(alertLogsPath);
 
         int numLogs = dir.listFiles().length;
-        int idx = 0;
-        String [][] alertLogs = new String[numLogs][];
+        ArrayList <ArrayList <String>> alertLogs = new ArrayList<ArrayList<String>>(); 
         System.out.println(numLogs);
-        if(dir.isDirectory()) {
-            for(File file : dir.listFiles()) {
-                if(file.isFile()) {
-                    try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
-                        int count = 0;
+        try {
+        	if(dir.isDirectory()) {
+	            for(File file : dir.listFiles()) {
+	                if(file.isFile()) {
+	                    BufferedReader fileReader = new BufferedReader(new FileReader(file));
                         while ((line = fileReader.readLine()) != null) {
-                            if(count > 0) {
-                                alertLogs[idx] = line.split(SPLITTER);
-                                for (int i = 0; i < alertLogs[idx].length; i++)
-                                    System.out.print(alertLogs[idx][i] + " + ");
-                                System.out.println();
+                            //skip the header (first) line
+                            if(!(line.contains("#"))) {
+                            	String temp[] = line.split(SPLITTER);
+                            	ArrayList <String> tempAL = new ArrayList<String>();
+                                Collections.addAll(tempAL, temp);
+                                alertLogs.add(tempAL);
                             }
-                            count++;
                         }
-                        idx++;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+                        fileReader.close();
+	                }
+	            }
+	        }
         }
-        System.out.println("=================================");
-        for(int i = 0; i < alertLogs.length; i++) {
-            for (int k = 0; k < alertLogs[i].length; k++) {
-                System.out.print(alertLogs[i][k] + " + ");
-            }
-            System.out.println();
+        catch(IOException e) {
+        	e.printStackTrace();
         }
     }
 }
